@@ -7,6 +7,7 @@ const API_URL = "http://localhost:8000";
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+  const [bookings, setBookings] = useState([]);
 
   const navigate = useNavigate();
 
@@ -14,6 +15,21 @@ export default function App() {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
     navigate("/");
+  };
+
+  const refreshbookings = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    axios
+      .get(`${API_URL}/user/bookings/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("User bookings are", res.data);
+        setBookings(res.data);
+      })
+      .catch((err) => console.error("Error fetching bookings", err));
   };
 
   return (
@@ -28,28 +44,18 @@ export default function App() {
           <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded mb-4">
             Logout
           </button>
-          <Buses />
-          <UserBookings />
+          <Buses onBookings={refreshbookings}/>
+          <UserBookings onBookings={refreshbookings} bookings={bookings}/>
         </>
       )}
     </div>
   );
 }
 
-function UserBookings() {
-  const [bookings, setBookings] = useState([]);
+function UserBookings({onBookings, bookings}) {
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    axios
-      .get(`${API_URL}/user/bookings/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {console.log("User bookings are", res.data);
-        setBookings(res.data);})
-      .catch((err) => console.error("Error fetching bookings", err));
+    onBookings();
   }, []);
 
   return (

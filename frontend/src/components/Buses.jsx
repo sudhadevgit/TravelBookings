@@ -5,7 +5,7 @@ import BookSeat from "./BookSeat";
 
 const API_URL = "http://127.0.0.1:8000/";
 
-function Buses() {
+function Buses({onBookings}) {
   const [buses, setBuses] = useState([]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ function Buses() {
                 />
               )}
               {/* ✅ Add BookSeat component */}
-              <BookSeat busId={bus.id} price={bus.price} />
+              <BookSeat busId={bus.id} price={bus.price} onBookings={onBookings}/>
             </div>
           ))}
         </div>
